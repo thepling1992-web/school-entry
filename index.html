@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>초등학교 입학 준비물 체크리스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 색상 모음 */
+:root{--bg:#faf8f5;--card:#fff;--ink:#2b2622;--mute:#7a7068;--line:#e9e3db;--red:#d92d20;--redbg:#fef3f2;--ok:#2f7d4f;--okbg:#e8f5ec;--no:#8a5a00;--nobg:#fdf1d8;--buy:#1d5fa8;--buybg:#e6f0fb;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:26px;margin:0 0 6px}
+.sub{color:var(--mute);font-size:14px;margin:0 0 16px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.rec{color:var(--red);font-weight:700}
+.badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.b-ok{background:var(--okbg);color:var(--ok)}
+.b-no{background:var(--nobg);color:var(--no)}
+.b-na{background:#eee;color:#777}
+/* 필터 버튼 줄 (스크롤해도 위에 고정) */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.filters button{border:1px solid var(--line);background:var(--card);padding:6px 14px;border-radius:20px;font:inherit;font-size:14px;cursor:pointer}
+.filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:18px;overflow:hidden}
+section h2{margin:0;padding:12px 16px;font-size:17px;background:#f4efe8;border-bottom:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;color:var(--mute);font-weight:500;padding:8px 12px;border-bottom:1px solid var(--line)}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr.isrec td:first-child{background:var(--redbg)}
+.item{font-weight:500}
+.item.rec{font-weight:700}
+.note{color:var(--mute);font-size:13px}
+.tag{font-size:11px;color:#999;margin-left:4px}
+.warn{background:var(--redbg);border:1px solid #fecdca;border-radius:10px;padding:12px 16px;font-size:14px;margin-bottom:18px}
+.warn b{color:var(--red)}
+.src{font-size:13px;color:var(--mute);margin-top:24px}
+.src a{color:var(--mute)}
+.empty{padding:14px 16px;color:var(--mute);font-size:14px}
+/* 직접 입력 칸 */
+.cell{display:flex;gap:6px;align-items:center}
+.inp{flex:1;width:100%;min-width:0;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font:inherit;font-size:13px;background:#fff;color:var(--ink)}
+.inp::placeholder{color:#b9b0a6}
+.sel{border:1px solid var(--line);border-radius:14px;padding:4px 8px;font:inherit;font-size:12px;background:#eee;color:#777;cursor:pointer}
+.sel.g-O{background:var(--okbg);color:var(--ok)}
+.sel.g-X{background:var(--nobg);color:var(--no)}
+.sel.g-B{background:var(--buybg);color:var(--buy)}
+.b-buy{background:var(--buybg);color:var(--buy)}
+/* 저장 링크 버튼 줄 */
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:-6px 0 18px}
+.tools button{border:1px solid var(--line);background:var(--card);padding:6px 14px;border-radius:20px;font:inherit;font-size:13px;cursor:pointer}
+.tools button:hover{background:#f4efe8}
+#d2A{display:block;width:100%;margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:12px;word-break:break-all;resize:vertical}
+#d2R{display:block;margin-top:10px;font-size:13px;color:var(--mute);white-space:normal}
+#d2R[hidden]{display:none}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px)}
+#toast.show{opacity:1}
+/* 항목 추가 · 삭제 */
+.del{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--mute);cursor:pointer;font-size:12px;line-height:1;padding:0}
+.del:hover{background:var(--redbg);color:var(--red);border-color:#fecdca}
+.delc{width:1%;white-space:nowrap}
+.addrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fcfaf7}
+.addbtn,.restore button{flex:none;border:1px solid var(--line);background:var(--card);padding:5px 14px;border-radius:20px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.addbtn:hover,.restore button:hover{background:#f4efe8}
+/* 삭제한 항목을 보여주는 추천 줄 */
+.recs{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;padding:10px 12px;border-top:1px dashed var(--line);background:#fcfaf7}
+.recs .note{width:100%}
+.chip{display:inline-flex;border:1px solid var(--line);border-radius:20px;background:var(--card);overflow:hidden}
+.chip button{border:none;background:none;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--ink)}
+.chip button:hover{background:#f4efe8}
+.chip .kill{padding:4px 9px;border-left:1px solid var(--line);color:var(--mute);font-size:11px}
+.chip .kill:hover{background:var(--redbg);color:var(--red)}
+/* 예시 보기 아이콘과 팝업 */
+.ex{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:#f4efe8;cursor:pointer;font-size:13px;line-height:1;padding:0}
+.ex:hover{background:#eadfce}
+dialog{border:1px solid var(--line);border-radius:12px;padding:0;max-width:420px;width:calc(100% - 32px);color:var(--ink)}
+dialog::backdrop{background:rgba(43,38,34,.4)}
+.dlg-h{padding:12px 16px;background:#f4efe8;border-bottom:1px solid var(--line);font-weight:700;font-size:15px}
+.dlg-h small{display:block;font-weight:400;color:var(--mute);font-size:12px}
+.dlg-b{padding:14px 16px;font-size:14px;white-space:pre-wrap}
+.dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:0 16px 14px}
+.dlg-f button{border:1px solid var(--line);background:var(--card);padding:6px 14px;border-radius:20px;font:inherit;font-size:13px;cursor:pointer}
+.dlg-f button.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* 휴대폰 화면: 표를 카드 모양으로 바꿈 */
+@media(max-width:700px){
+ thead{display:none}
+ table,tbody,tr,td{display:block;width:100%}
+ tr{padding:10px 14px;border-bottom:1px solid var(--line)}
+ tr:last-child{border-bottom:none}
+ td{border:none;padding:2px 0}
+ tr.isrec td:first-child{background:none}
+ tr.isrec{background:var(--redbg)}
+ tr{position:relative}
+ td.delc{position:absolute;top:8px;right:12px;width:auto}
+ td[data-l]::before{content:attr(data-l)" · ";color:var(--mute);font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🎒 초등학교 입학 준비물</h1>
+<p class="sub">2027년 3월 입학(2020년생) 기준 · 웹 자료 조사 · 2026.11.15 정리</p>
+
+<div class="legend">
+ <span><span class="rec">빨간 글씨 ★</span> = 여러 자료에서 공통으로 꼭 챙기라고 한 것</span>
+ <span><span class="badge b-no">미리 준비</span> 입학 전에 해 둘 것</span>
+ <span><span class="badge b-ok">안내 후 구입</span> 학교 안내문을 받은 뒤 살 것</span>
+ <span><span class="badge b-buy">완료</span> 이미 끝낸 것</span>
+ <span>💡 = 예시 보기 (칸은 직접 입력, 이 기기에 자동 저장)</span>
+</div>
+
+<div class="warn"><b>먼저 확인</b> · 준비물은 <b>학교마다 다릅니다.</b> 공책 종류, 색연필 색 수 같은 것은 예비소집이나 입학식 때 받는 안내문을 본 뒤에 사세요 · 해외 직구 학용품은 <b>KC 인증</b> 표시를 확인 · 날짜와 지원 금액은 해마다, 지역마다 다르니 직접 확인하세요.</div>
+
+<div class="filters" id="filters">
+ <button data-f="all" class="on">전체</button>
+ <button data-f="rec">★ 추천만</button>
+ <button data-f="O">안내 후 구입</button>
+ <button data-f="X">미리 준비</button>
+ <button data-f="B">완료</button>
+</div>
+
+<!-- 내 목록을 링크로 보관하고 다시 불러오는 버튼 -->
+<div class="tools">
+ <button id="btnCopy">🔗 저장 링크 복사</button>
+ <button id="btnPaste">📥 링크 붙여넣어 불러오기</button>
+ <span class="note">복사한 링크를 보관하거나 다른 사람에게 보내세요. 상대가 고친 뒤 다시 보내준 링크를 열면 내 내용과 합쳐집니다.</span>
+</div>
+<div id="toast" role="status"></div>
+
+<!-- 링크 복사 · 붙여넣기 팝업 -->
+<dialog id="dlg2">
+ <div class="dlg-h" id="d2T"></div>
+ <div class="dlg-b"><div id="d2M"></div><textarea id="d2A" rows="5" aria-label="저장 링크"></textarea><label id="d2R"><input type="checkbox" id="d2C"> 합치지 않고 링크 내용으로 통째로 바꾸기</label></div>
+ <div class="dlg-f"><button id="d2Go" class="pri"></button><button id="d2X">닫기</button></div>
+</dialog>
+
+<!-- 예시를 보여주는 팝업 -->
+<dialog id="dlg">
+ <div class="dlg-h"><span id="dlgT"></span><small id="dlgS"></small></div>
+ <div class="dlg-b" id="dlgB"></div>
+ <div class="dlg-f"><button id="dlgUse" class="pri">예시 그대로 넣기</button><button id="dlgX">닫기</button></div>
+</dialog>
+
+<div id="root"></div>
+
+<p class="src">조사 방법: 웹 검색으로 찾은 글(베이비뉴스 입학 체크리스트, 내일신문 새 학년 특집, 서울신문·레이디경향 초1 기사, 틸노트 입학 준비물 정리 등)을 바탕으로 정리했습니다. 유튜브는 현직 교사의 관련 영상(1학년 학용품 준비하기, 새 학년 준비물 꿀팁 등)이 있다는 것까지만 확인했고, 로그인 요구로 영상 내용은 열람하지 못해 반영하지 못했습니다. 메모에 "일반적인 권장 사항"이라고 적힌 항목은 특정 자료가 아니라 널리 알려진 내용입니다. 가격과 특정 제품 추천은 넣지 않았습니다.</p>
+</div>
+
+<script>
+// 데이터 한 줄의 순서: [카테고리, 품목, 구분(X 미리 준비 / O 안내 후 구입 / - 없음), 추천(1/0), 고르는 기준 예시, (안 씀), 메모 예시]
+const D=[
+["📄 서류 · 행정", "취학통지서 확인", "X", 1, "정부24 온라인 발급 또는 행정복지센터에서 종이로 수령", "", "보통 12월에 나옴. 입학 전에 이사하면 새 주소지에서 다시 배정. 날짜는 해마다 다르니 직접 확인"],
+["📄 서류 · 행정", "예비소집 참석", "X", 1, "배정받은 학교 안내에 따름 (보통 1~2월)", "", "아이와 함께 가는 것을 권장. 못 가면 학교에 미리 연락"],
+["📄 서류 · 행정", "예방접종 4종 확인", "X", 1, "DTaP 5차, IPV 4차, MMR 2차, 일본뇌염(사백신 4차 또는 생백신 2차)", "", "전산에 기록이 있으면 증명서를 낼 필요 없음. 조회가 안 되면 접종 기관이나 보건소에 등록 요청"],
+["📄 서류 · 행정", "건강 정보 서면 제출", "X", 0, "식품 알레르기, 아토피, 천식, 경련 이력 등", "", "말로만 전하지 말고 글로 남기기. 응급약이 있으면 보관·사용법을 학교와 미리 상의"],
+["📄 서류 · 행정", "영유아 건강검진 · 구강검진", "X", 0, "마지막 차수를 받았는지 확인", "", "입학 전에 확인 권장"],
+["📄 서류 · 행정", "돌봄교실 · 방과후 신청", "X", 1, "학교 돌봄, 지역 돌봄센터 등에서 선택", "", "신청 기간을 놓치면 한 학기에서 1년까지 기다릴 수 있음. 운영 시간과 신청 시기는 학교마다 다름"],
+["📄 서류 · 행정", "입학준비금 신청", "X", 0, "사는 지역의 교육청·구청 홈페이지에서 확인", "", "금액과 신청 기간이 지역마다 다름. 기간을 한 번만 여는 곳도 있음"],
+["📄 서류 · 행정", "입학식 날 받는 서류 제출", "O", 0, "학생 기초자료, 스쿨뱅킹 신청서, 정보제공 동의서 등", "", "기한 안에 제출. 입학식 날에는 수업과 급식이 없음"],
+["📄 서류 · 행정", "학교 알림 앱 · 소통 창구 가입", "O", 0, "학교가 쓰는 방식(가정통신문, 알림 서비스 등)을 확인", "", "3월 초 입학식 무렵에 안내됨"],
+["🎒 가방 · 신발", "책가방", "X", 1, "600g 이하의 가벼운 것, 가슴 벨트, 위쪽 고리(책상에 걸 수 있게), 반사 소재, 양방향 지퍼", "", "아이가 직접 메 보고 스스로 여닫을 수 있는지 확인"],
+["🎒 가방 · 신발", "실내화", "X", 1, "EVA 소재처럼 가볍고 발에 맞는 것", "", "학교에서 색이나 종류를 정해 주는 경우가 있으니 안내를 확인"],
+["🎒 가방 · 신발", "실내화 가방", "X", 0, "튼튼한 천 재질", "", "책가방과 세트로 파는 경우가 많음"],
+["🎒 가방 · 신발", "우산 · 우비", "-", 0, "아이가 혼자 펴고 접을 수 있는 것", "", "(일반적인 권장 사항)"],
+["✏️ 필기 · 학용품", "연필", "X", 1, "HB보다 무른 2B, 2다스 정도", "", "이름을 새기거나 붙여 두기. 샤프는 저학년에 권하지 않는 경우가 많음"],
+["✏️ 필기 · 학용품", "지우개", "X", 0, "잘 지워지고 종이가 상하지 않는 것, 뚜껑(커버)이 있는 것", "", "커버가 있으면 찌꺼기가 덜 남음"],
+["✏️ 필기 · 학용품", "필통", "X", 1, "떨어뜨려도 소리가 나지 않는 천 재질", "", "장난감처럼 화려한 것은 수업 집중을 방해할 수 있어 피하기"],
+["✏️ 필기 · 학용품", "네임스티커 · 이름 도장", "X", 1, "방수되는 것, 크기 여러 가지", "", "모든 학용품에 이름 쓰기는 필수"],
+["✏️ 필기 · 학용품", "L자 파일 · 클리어 파일", "X", 1, "A4 크기", "", "주간 학습 안내, 급식표 등 유인물이 많아 모아 두기 좋음"],
+["✏️ 필기 · 학용품", "풀", "O", 0, "액체 풀보다 막대형(딱풀)", "", "깔끔하고 쓰기 편함"],
+["✏️ 필기 · 학용품", "공책 · 종합장 · 알림장", "O", 0, "학교 안내문에 적힌 종류", "", "학교나 담임 선생님이 종류를 정해 주는 경우가 많아 안내를 받은 뒤 사기"],
+["✏️ 필기 · 학용품", "색연필 · 사인펜 · 크레파스", "O", 0, "학교 안내문에 적힌 색 수", "", "색 수와 종류는 학교마다 다름. 안내를 받은 뒤 사기"],
+["✏️ 필기 · 학용품", "색종이 · 가위", "O", 0, "가위는 끝이 둥근 안전 가위", "", "학교에서 함께 쓰는 물품으로 준비해 주는 경우도 있음"],
+["🧴 생활 · 위생", "개인 물병", "X", 1, "한 손으로 여는 원터치, 보온·보냉", "", "이름을 붙이고, 아이가 혼자 여닫고 씻기 쉬운지 확인"],
+["🧴 생활 · 위생", "손수건 · 휴대용 티슈", "X", 0, "가방에 들어가는 작은 것", "", ""],
+["🧴 생활 · 위생", "여분 마스크", "-", 0, "아이 얼굴 크기에 맞는 것", "", "학교 방침에 따라 필요 여부가 다름"],
+["🧴 생활 · 위생", "개인 컵 · 양치 도구", "O", 0, "학교 안내에 따름", "", "학교마다 사용 여부가 다름"],
+["🚸 안전 · 연락", "등하굣길 걸어 보기", "X", 1, "신호등, 횡단보도, 골목, 공사 구간 등 실제 길", "", "학교의 귀가 방식(저학년은 돌봄 후 동행 등)을 미리 확인"],
+["🚸 안전 · 연락", "키즈 스마트워치 · 키즈폰", "-", 0, "위치 확인과 통화가 되는 것", "", "선택 사항. 학교의 휴대 기기 규칙을 확인"],
+["🚸 안전 · 연락", "비상 연락처 외우기", "-", 0, "보호자 전화번호, 집 주소", "", "(일반적인 권장 사항)"],
+["🌱 생활 습관", "자기 이름 읽고 쓰기", "X", 1, "자기 이름을 읽고 쓸 수 있으면 충분", "", "1학년 교과서는 한글을 잘 몰라도 그림으로 이해하도록 되어 있고, 1학기에는 받아쓰기를 하지 않는다는 설명이 있음"],
+["🌱 생활 습관", "40분 앉아 있기 · 규칙적인 기상", "X", 1, "등교 시간에 맞춰 일어나고 자는 연습", "", "1학년에게는 40분 수업이 길게 느껴짐"],
+["🌱 생활 습관", "혼자 화장실 가기 · 옷 입고 벗기", "-", 0, "쉬는 시간 안에 혼자 다녀오기", "", "(일반적인 권장 사항)"],
+["🌱 생활 습관", "급식 연습", "-", 0, "젓가락 쓰기, 우유갑 열기, 식판 들기", "", "(일반적인 권장 사항)"],
+["🌱 생활 습관", "가방 스스로 챙기기", "-", 0, "알림장을 보고 준비물 넣기", "", "하교 후 가방, 알림장, L자 파일에 전달 사항이 있는지 함께 확인"],
+];
+
+const root=document.getElementById('root');
+let filter='all'; // 지금 선택된 필터
+// 내가 입력한 값은 이 브라우저(localStorage)에 저장해 둔다
+const KEY='school-entry-v1';
+let state={};
+try{state=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+// i번째 품목의 현재 값 (구분 g, 브랜드 b, 구입처 s, 메모 m). 구분은 처음엔 원래 목록 값을 쓴다
+function get(i){const r=L[i].r,s=state[L[i].k]||{};return{g:s.g!==undefined?s.g:(r[2]==='-'?'':r[2]),b:s.b||'',s:s.s||'',m:s.m||''}}
+// 값을 바꿀 때 고친 시각(t)도 같이 적어 둔다 → 두 사람의 내용을 합칠 때 더 나중에 고친 쪽을 고른다
+function set(i,f,v){state[L[i].k]=Object.assign(get(i),{[f]:v,t:Date.now()});save()}
+// 화면에 쓸 전체 목록 L = 기본 품목 + 내가 추가한 품목 (k는 저장용 이름표, ex는 예시가 있는지)
+const CATS=[...new Set(D.map(r=>r[0]))];
+let L=[];
+function build(){
+  L=D.map(r=>({k:r[1],r:r,ex:true})).concat((state._add||[]).map(a=>({k:'c:'+a.id,r:[a.c,a.n,'-',0,'','',''],ex:false,id:a.id})));
+}
+build();
+// 삭제한 품목인지. _del 값은 시각이며, 양수면 삭제한 상태, 음수면 되살린 상태
+function gone(i){return !!(state._del&&state._del[L[i].k]>0)}
+// 글자에 섞인 특수문자를 안전하게 바꾸기
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+// 구분 선택 상자 만들기
+function sel(i,g){
+  const o=[['','선택'],['X','미리 준비'],['O','안내 후 구입'],['B','완료']];
+  return '<select class="sel g-'+g+'" data-i="'+i+'" data-f="g" aria-label="구분">'+o.map(x=>'<option value="'+x[0]+'"'+(x[0]===g?' selected':'')+'>'+x[1]+'</option>').join('')+'</select>';
+}
+// 직접 입력 칸 만들기 (col이 있으면 예시 보기 아이콘도 붙인다)
+function inp(i,f,v,ph,col){
+  return '<div class="cell"><input class="inp" data-i="'+i+'" data-f="'+f+'" value="'+esc(v)+'" placeholder="'+esc(ph)+'">'+(col?'<button class="ex" data-i="'+i+'" data-f="'+f+'" data-c="'+col+'" title="예시 보기" aria-label="예시 보기">💡</button>':'')+'</div>';
+}
+// 필터에 맞는 항목만 골라 카테고리별 표로 그리기
+function render(){
+  root.innerHTML='';
+  let any=false;
+  CATS.forEach((c,ci)=>{
+    let rows=L.map((x,i)=>i).filter(i=>L[i].r[0]===c&&!gone(i));
+    rows=rows.filter(i=>filter==='all'||(filter==='rec'&&L[i].r[3])||get(i).g===filter);
+    // 전체 보기에서는 항목이 없어도 카테고리를 보여줘서 새로 추가할 수 있게 한다
+    if(!rows.length&&filter!=='all')return;
+    any=true;
+    const sec=document.createElement('section');
+    sec.innerHTML='<h2>'+c+' <span class="note">('+rows.length+')</span></h2><table><thead><tr><th>품목</th><th>구분</th><th>제품 · 고르는 기준</th><th>구입처</th><th>메모</th><th></th></tr></thead><tbody>'+
+    rows.map(i=>{const r=L[i].r,v=get(i),e=L[i].ex;return '<tr class="'+(r[3]?'isrec':'')+'"><td><span class="item '+(r[3]?'rec':'')+'">'+(r[3]?'★ ':'')+esc(r[1])+'</span></td><td data-l="구분">'+sel(i,v.g)+'</td><td data-l="제품">'+inp(i,'b',v.b,'직접 입력',e?4:0)+'</td><td data-l="구입처">'+inp(i,'s',v.s,'직접 입력',0)+'</td><td data-l="메모">'+inp(i,'m',v.m,'직접 입력',e?6:0)+'</td><td class="delc"><button class="del" data-i="'+i+'" title="이 항목 삭제" aria-label="'+esc(r[1])+' 삭제">✕</button></td></tr>'}).join('')+'</tbody></table>'+
+    '<div class="addrow"><input class="inp addname" data-c="'+ci+'" placeholder="새 품목 이름" aria-label="새 품목 이름"><button class="addbtn" data-c="'+ci+'">＋ 항목 추가</button></div>'+recs(c);
+    root.appendChild(sec);
+  });
+  if(!any)root.innerHTML='<div class="empty">해당 항목이 없습니다.</div>';
+}
+// 이 카테고리에서 삭제한 항목들을 "추천"으로 보여준다 (누르면 다시 추가)
+function recs(c){
+  const d=L.map((x,i)=>i).filter(i=>L[i].r[0]===c&&gone(i));
+  if(!d.length)return '';
+  return '<div class="recs"><span class="note">추천 · 삭제한 항목 (누르면 다시 추가)</span>'+d.map(i=>'<span class="chip"><button class="back" data-i="'+i+'">＋ '+esc(L[i].r[1])+'</button>'+(L[i].ex?'':'<button class="kill" data-i="'+i+'" title="완전히 지우기" aria-label="'+esc(L[i].r[1])+' 완전히 지우기">✕</button>')+'</span>').join('')+'</div>';
+}
+// 새 품목 추가
+function addItem(ci,box){
+  const n=box.value.trim();if(!n){box.focus();return}
+  (state._add=state._add||[]).push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),c:CATS[ci],n:n});
+  save();build();render();
+  const nb=root.querySelector('.addname[data-c="'+ci+'"]');if(nb)nb.focus();
+}
+// 항목 삭제: 목록에서 빼서 카테고리 아래 "추천"으로 옮긴다 (입력해 둔 내용은 그대로 보관)
+function delItem(i){
+  const it=L[i];
+  if(!confirm("'"+it.r[1]+"' 항목을 삭제할까요?\n(카테고리 아래 추천에 남아 다시 추가할 수 있습니다)"))return;
+  (state._del=state._del||{})[it.k]=Date.now();
+  save();render();
+}
+// 추천에서 다시 목록으로 되돌리기
+function backItem(i){state._del[L[i].k]=-Date.now();save();render()}
+// 내가 추가했던 항목을 추천에서도 완전히 지우기
+function killItem(i){
+  const it=L[i];
+  if(!confirm("'"+it.r[1]+"' 항목을 완전히 지울까요? 되돌릴 수 없습니다."))return;
+  state._add=(state._add||[]).filter(a=>a.id!==it.id);delete state[it.k];delete state._del[it.k];
+  (state._kill=state._kill||{})[it.id]=Date.now(); // 합칠 때 다시 살아나지 않게 기록
+  save();build();render();
+}
+root.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.closest('.addbtn')){const b=t.closest('.addbtn');addItem(+b.dataset.c,b.parentNode.querySelector('.addname'))}
+  else if(t.closest('.del'))delItem(+t.closest('.del').dataset.i);
+  else if(t.closest('.back'))backItem(+t.closest('.back').dataset.i);
+  else if(t.closest('.kill'))killItem(+t.closest('.kill').dataset.i);
+});
+// 새 품목 이름 칸에서 엔터를 눌러도 추가
+root.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.classList.contains('addname'))addItem(+e.target.dataset.c,e.target);
+});
+// 입력하거나 구분을 바꾸면 바로 저장
+root.addEventListener('input',e=>{
+  const t=e.target;if(!t.dataset.f)return;
+  set(+t.dataset.i,t.dataset.f,t.value);
+  if(t.dataset.f==='g')t.className='sel g-'+t.value;
+});
+// 💡 아이콘을 누르면 예시 팝업 열기
+const dlg=document.getElementById('dlg');
+let cur=null; // 팝업이 가리키는 칸
+root.addEventListener('click',e=>{
+  const b=e.target.closest('.ex');if(!b)return;
+  const r=L[+b.dataset.i].r;
+  cur=b;
+  document.getElementById('dlgT').textContent='예시 · '+r[1];
+  document.getElementById('dlgS').textContent=b.dataset.f==='b'?'제품 · 고르는 기준':'메모';
+  document.getElementById('dlgB').textContent=r[+b.dataset.c];
+  dlg.showModal();
+});
+document.getElementById('dlgX').addEventListener('click',()=>dlg.close());
+// 예시 내용을 입력 칸에 그대로 넣기
+document.getElementById('dlgUse').addEventListener('click',()=>{
+  const i=+cur.dataset.i,box=cur.parentNode.querySelector('.inp');
+  box.value=L[i].r[+cur.dataset.c];
+  set(i,cur.dataset.f,box.value);
+  dlg.close();
+});
+// 팝업 바깥(어두운 부분)을 눌러도 닫기
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+// 필터 버튼을 누르면 다시 그리기
+document.getElementById('filters').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  filter=b.dataset.f;
+  document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('on',x===b));
+  render();
+});
+
+// ───── 저장 링크: 내 목록 전체를 링크 한 줄에 담아 보관하고, 다시 불러온다 ─────
+// 내용을 링크에 넣을 수 있는 글자로 바꾸기 / 되돌리기
+function enc(o){let s='';new TextEncoder().encode(JSON.stringify(o)).forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function dec(t){const s=atob(t.replace(/-/g,'+').replace(/_/g,'/'));return JSON.parse(new TextDecoder().decode(Uint8Array.from(s,c=>c.charCodeAt(0))))}
+function makeLink(){return location.href.split('#')[0]+'#d='+enc(state)}
+// 두 목록 합치기 (a: 지금 내 내용, b: 링크의 내용). 항목마다 더 나중에 고친 쪽을 남기고, 시각이 같으면 링크 쪽을 쓴다
+function merge(a,b){
+  const o={},kill=Object.assign({},a._kill,b._kill),seen={},add=[],del={};
+  // 추가한 품목: 양쪽 것을 모두 모으되, 완전히 지운 것은 뺀다
+  (a._add||[]).concat(b._add||[]).forEach(x=>{if(x&&x.id&&!seen[x.id]&&!kill[x.id]){seen[x.id]=1;add.push(x)}});
+  // 삭제·되살림 기록: 더 나중 것을 따른다
+  [a._del||{},b._del||{}].forEach((src,n)=>{for(const k in src){const v=+src[k]||0,p=Math.abs(del[k]||0);if(!(k in del)||Math.abs(v)>p||(n&&Math.abs(v)===p))del[k]=v}});
+  // 품목별 입력 내용
+  new Set(Object.keys(a).concat(Object.keys(b))).forEach(k=>{
+    if(k[0]==='_')return;
+    const x=a[k],y=b[k];
+    o[k]=!x?y:!y?x:((y.t||0)>=(x.t||0)?y:x);
+  });
+  for(const id in kill){delete o['c:'+id];delete del['c:'+id]}
+  if(add.length)o._add=add;
+  if(Object.keys(del).length)o._del=del;
+  if(Object.keys(kill).length)o._kill=kill;
+  return o;
+}
+// 어떤 목록(st)에서 품목 k가 화면에 보이는 값 (입력한 적 없으면 기본값)
+function eff(st,k){
+  const s=st[k]||{},r=D.find(x=>x[1]===k),g0=r&&r[2]!=='-'?r[2]:'';
+  return [s.g!==undefined?s.g:g0,s.b||'',s.s||'',s.m||''];
+}
+// 두 목록에서 서로 다른 칸이 몇 군데인지 세기
+function diffCount(a,b){
+  let n=0;const j=x=>JSON.stringify(x===undefined?null:x);
+  new Set(Object.keys(a).concat(Object.keys(b))).forEach(k=>{
+    if(k==='_kill')return;
+    if(k==='_del'){const p=a._del||{},q=b._del||{};new Set(Object.keys(p).concat(Object.keys(q))).forEach(d=>{if((p[d]>0)!==(q[d]>0))n++})}
+    else if(k==='_add'){const ids=x=>(x._add||[]).map(v=>v.id);const p=ids(a),q=ids(b);n+=p.filter(v=>q.indexOf(v)<0).length+q.filter(v=>p.indexOf(v)<0).length}
+    else if(j(eff(a,k))!==j(eff(b,k)))n++;
+  });
+  return n;
+}
+let lastN=0; // 방금 불러오기로 바뀐 곳의 개수
+// 링크(글자) 안의 내용을 꺼내 화면에 적용. replace가 참이면 합치지 않고 통째로 바꾼다
+// 결과: 'ok' 적용함 / 'same' 바뀔 것이 없음 / 'cancel' 취소함 / 'bad' 올바른 링크가 아님
+function applyLink(txt,ask,replace){
+  const m=/#d=([A-Za-z0-9_-]+)/.exec(txt);if(!m)return 'bad';
+  let o;try{o=dec(m[1])}catch(e){return 'bad'}
+  if(!o||typeof o!=='object'||Array.isArray(o))return 'bad';
+  if(!Array.isArray(o._add))delete o._add;
+  ['_del','_kill'].forEach(k=>{if(o[k]&&(typeof o[k]!=='object'||Array.isArray(o[k])))delete o[k]});
+  const next=replace?o:merge(state,o);
+  lastN=diffCount(state,next);
+  if(!lastN)return 'same';
+  if(ask&&Object.keys(state).length&&!confirm(replace?'지금 화면의 내용을 지우고 링크에 담긴 내용으로 통째로 바꿀까요?':'링크의 내용을 지금 내용과 합칠까요?\n바뀌는 곳: '+lastN+'군데 (항목마다 더 나중에 고친 쪽이 남습니다)'))return 'cancel';
+  state=next;save();build();render();return 'ok';
+}
+// 화면 아래에 잠깐 떴다 사라지는 알림
+let toastT=0;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),5000)}
+const dlg2=document.getElementById('dlg2'),d2A=document.getElementById('d2A'),d2M=document.getElementById('d2M'),d2Go=document.getElementById('d2Go'),d2R=document.getElementById('d2R'),d2C=document.getElementById('d2C');
+let mode='copy';
+function copyNow(){
+  d2A.select();
+  const done=()=>{d2M.textContent='링크를 복사했습니다. 메모장이나 카톡(나에게 보내기)에 붙여넣어 보관하세요. 내용을 고친 뒤에는 다시 복사해야 최신 내용이 담깁니다.'};
+  const fail=()=>{d2M.textContent='자동 복사가 안 됐습니다. 아래 링크를 직접 길게 눌러(또는 Ctrl+C) 복사하세요.'};
+  try{navigator.clipboard.writeText(d2A.value).then(done,fail)}catch(e){fail()}
+}
+document.getElementById('btnCopy').addEventListener('click',()=>{
+  mode='copy';
+  document.getElementById('d2T').textContent='🔗 저장 링크 복사';
+  d2A.value=makeLink();d2A.readOnly=true;d2Go.textContent='다시 복사';d2M.textContent='';d2R.hidden=true;
+  dlg2.showModal();copyNow();
+});
+document.getElementById('btnPaste').addEventListener('click',()=>{
+  mode='paste';
+  document.getElementById('d2T').textContent='📥 링크 붙여넣어 불러오기';
+  d2A.value='';d2A.readOnly=false;d2Go.textContent='불러오기';d2R.hidden=false;d2C.checked=false;
+  d2M.textContent='보관해 둔 링크나 다른 사람이 고쳐서 보내준 링크를 아래 칸에 붙여넣고 [불러오기]를 누르세요. 지금 내용과 합쳐지며, 같은 항목은 더 나중에 고친 쪽이 남습니다.';
+  dlg2.showModal();d2A.focus();
+});
+d2Go.addEventListener('click',()=>{
+  if(mode==='copy'){copyNow();return}
+  const r=applyLink(d2A.value,true,d2C.checked);
+  if(r==='ok'){dlg2.close();toast('링크의 내용을 반영했습니다 · 바뀐 곳 '+lastN+'군데')}
+  else if(r==='same')d2M.textContent='지금 내용과 다른 점이 없어 바뀐 것이 없습니다.';
+  else if(r==='bad')d2M.textContent='올바른 저장 링크가 아닙니다. 링크 전체를 빠짐없이 붙여넣었는지 확인해 주세요.';
+});
+document.getElementById('d2X').addEventListener('click',()=>dlg2.close());
+dlg2.addEventListener('click',e=>{if(e.target===dlg2)dlg2.close()});
+// 저장 링크로 바로 접속한 경우: 링크의 내용을 불러오고 주소창은 원래 주소로 정리
+if(location.hash.indexOf('#d=')===0){
+  const r=applyLink(location.hash,true);
+  if(r==='ok')toast('링크의 내용을 반영했습니다 · 바뀐 곳 '+lastN+'군데');
+  else if(r==='same')toast('링크의 내용이 지금 내용과 같습니다');
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+}
+render();
+</script>
+</body>
+</html>
